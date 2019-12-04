@@ -20,6 +20,7 @@ namespace Assets.Scripts.Grid
 
         public bool DebugNode = true;
         public Material DebugMaterial;
+        public Material ObstacleMaterial;
 
 
         #endregion
@@ -37,7 +38,23 @@ namespace Assets.Scripts.Grid
         private void Update()
         {
             Camera.main.transform.Translate(
-                Input.GetAxisRaw("Horizontal") * 0.75f, Input.GetAxisRaw("Vertical") *.75f, 0);
+                Input.GetAxisRaw("Horizontal") * 0.75f, Input.GetAxisRaw("Vertical") * .75f, 0);
+
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (scroll != 0.0f)
+            {
+                Camera.main.orthographicSize = Camera.main.orthographicSize + Camera.main.orthographicSize * scroll;
+
+            }
+
+        }
+
+        internal Node GetNodeFromWorldPosition(Vector2 point)
+        {
+            int x = Mathf.RoundToInt(point.x / ScaleXY);
+            int y = Mathf.RoundToInt(point.y / ScaleXY);
+
+            return GetNode(x, y);
         }
 
         #endregion
@@ -55,18 +72,39 @@ namespace Assets.Scripts.Grid
             {
                 for (int y = 0; y < SizeY; y++)
                 {
-                    var n = new Node();
+                    var n = new Node(this.GetWorldCoordinatesFromNode);
                     n.x = x;
                     n.y = y;
-                    n.isWalkable = true;
+                    n.IsWalkable = true;
 
                     if (DebugNode)
                     {
+
+                        if ((x == 10 && y != 10)
+                            ||
+                            x == 12 && y != 2 && y != 18
+                            ||
+                            x == 14 && y != 4 && y != 30 && y != 15 
+
+
+                            )
+                        {
+                            n.IsWalkable = false;
+                        }
+
                         var targetPosition = GetWorldCoordinatesFromNode(x, y);
                         GameObject go = Instantiate(_debugNodeObj,
                             targetPosition, Quaternion.identity) as GameObject;
 
-                        go.transform.parent = _level.NodeParent.transform ;
+                        if (!n.IsWalkable)
+                        {
+                            go.GetComponentInChildren<MeshRenderer>().material = ObstacleMaterial;
+                        }
+
+                        //go.GetComponentInChildren<MeshRenderer>.sorting
+                        go.transform.parent = _level.NodeParent.transform;
+                        go.SetActive(true);
+
                     }
 
                     Grid[x, y] = n;
@@ -90,6 +128,7 @@ namespace Assets.Scripts.Grid
             _level.CollisionObject.name = "Level 0 Collision";
         }
         public static GridBase GetInstance { get; set; }
+        public bool IsInitialized { get; internal set; } = false;
 
         public Node GetNode(int x, int y)
         {
@@ -106,6 +145,14 @@ namespace Assets.Scripts.Grid
             return r;
         }
 
+        public Vector2 GetWorldCoordinatesFromNode(Node n)
+        {
+            Vector2 r = Vector2.zero;
+            r.x = n.x * ScaleXY;
+            r.y = n.y * ScaleXY;
+            return r;
+        }
+
         public void InitPhase()
         {
             if (DebugNode)
@@ -114,6 +161,8 @@ namespace Assets.Scripts.Grid
             CreateGrid();
 
             GameManager.GetInstance.Init();
+            IsInitialized = true;
+
         }
 
         private GameObject WorldNode()
@@ -123,11 +172,11 @@ namespace Assets.Scripts.Grid
             Destroy(quad.GetComponent<Collider>());
             quad.transform.parent = go.transform;
             quad.transform.localPosition = Vector2.zero;
-            //quad.transform.localEulerAngles = new Vector2(90, 0);
-            quad.transform.localScale = Vector2.one * 0.95f;
-            quad.GetComponentInChildren<MeshRenderer>().material = DebugMaterial;
-            return go;
+            quad.transform.localScale = Vector3.one * 0.95f;
 
+            quad.GetComponent<MeshRenderer>().material = DebugMaterial;
+            go.SetActive(false);
+            return go;
         }
 
         void Check()

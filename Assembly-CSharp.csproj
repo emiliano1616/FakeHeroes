@@ -63,10 +63,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Algorithms\PathFinding.cs" />
     <Compile Include="Assets\Scripts\Grid\GridBase.cs" />
     <Compile Include="Assets\Scripts\Grid\GridLevel.cs" />
     <Compile Include="Assets\Scripts\Grid\Node.cs" />
     <Compile Include="Assets\Scripts\Managers\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Managers\PathManager.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>E:/Unity/GridMap/FakeHeroes/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

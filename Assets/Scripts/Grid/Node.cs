@@ -9,27 +9,46 @@ namespace Assets.Scripts.Grid
 {
     public class Node
     {
+        public Node(Func<Node, Vector2> getPositionFunc)
+        {
+            this._getPositionFunc = getPositionFunc;
+        }
+        private Func<Node, Vector2> _getPositionFunc;
         //Node's position in the grid
         public int x { get; set; }
         public int y { get; set; }
-        public int z { get; set; }
 
         //Node's costs for pathfinding purposes
-        public float hCost { get; set; }
-        public float gCost { get; set; }
-
-        public float fCost { get { return hCost + gCost; } }
+        public double hCost { get; set; }
+        public double gCost { get; set; }
+        public double fCost { get { return hCost + gCost; } }
+        public double NodeCost { get; set; } = 1f;
 
         public Node ParentNode { get; set; }
-        public bool isWalkable { get; set; } = true;
-
-        public GameObject worldObject { get; set; }
-
-        public NodeTypes Type { get; set; }
-        public enum NodeTypes
+        public bool IsWalkable { get; set; } = true;
+        public bool APAvailable { get; set; } = true;
+        public Vector2 Position
         {
-            Ground,
-            Water
+            get
+            {
+                if (this._getPositionFunc == null)
+                    throw new Exception("GetPositionFunc cannot be null");
+                return this._getPositionFunc(this);
+            }
+        }
+
+        //public GameObject WorldObject { get; set; }
+
+        //public NodeTypes Type { get; set; }
+        //public enum NodeTypes
+        //{
+        //    Ground,
+        //    Water
+        //}
+
+        public override string ToString()
+        {
+            return $"X: {x} Y: {y}";
         }
     }
 }
