@@ -32,8 +32,8 @@ namespace Assets.Scripts.Algorithms
                 {
                     this._closedList[x, y] = false;
                     var n = this.Grid[x, y];
-                    n.hCost = double.MaxValue;
-                    n.gCost = double.MaxValue;
+                    n.hCost = float.MaxValue;
+                    n.gCost = float.MaxValue;
                     n.ParentNode = null;
                 }
             }
@@ -50,7 +50,7 @@ namespace Assets.Scripts.Algorithms
             return this.Destination.x == n.x && this.Destination.y == n.y;
         }
 
-        private double CalculateH(Node current)
+        private float CalculateH(Node current)
         {
             return Math.Max(Math.Abs(current.x - Destination.x), Math.Abs(current.y - Destination.y));
         }
@@ -63,13 +63,13 @@ namespace Assets.Scripts.Algorithms
 
             if (!this.Destination.IsWalkable || !this.Source.IsWalkable)
             {
-                Debug.Log("Source or the destination is blocked");
+                //Debug.Log("Source or the destination is blocked");
                 return null;
             }
 
             if (this.IsDestination(this.Source))
             {
-                Debug.Log("We are already at the destination");
+                //Debug.Log("We are already at the destination");
                 return null;
             }
 

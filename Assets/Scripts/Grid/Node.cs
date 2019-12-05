@@ -19,15 +19,25 @@ namespace Assets.Scripts.Grid
         public int y { get; set; }
 
         //Node's costs for pathfinding purposes
-        public double hCost { get; set; }
-        public double gCost { get; set; }
-        public double fCost { get { return hCost + gCost; } }
-        public double NodeCost { get; set; } = 1f;
+        public float hCost { get; set; }
+        public float gCost { get; set; }
+        public float fCost { get { return hCost + gCost; } }
+        public float NodeCost { get; set; } = 1f;
 
         public Node ParentNode { get; set; }
         public bool IsWalkable { get; set; } = true;
         public bool APAvailable { get; set; } = true;
         public Vector2 Position
+        {
+            get
+            {
+                if (this._getPositionFunc == null)
+                    throw new Exception("GetPositionFunc cannot be null");
+                return this._getPositionFunc(this);
+            }
+        }
+
+        public Vector3 Position3
         {
             get
             {

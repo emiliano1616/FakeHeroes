@@ -1,36 +1,44 @@
 ﻿using Assets.Scripts.Algorithms;
 using Assets.Scripts.Grid;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Managers
 {
     public class GameManager : MonoBehaviour
     {
-        public Transform Player;
-        public bool IsPlayerMoving;
-        public Material AvailableMovementMaterial;
-        public Material MissingMovementMaterial;
-        public int ActionPoints = 10;
-        //private Node CurrentMouseNode;
+        public UnitController Players;
         private Node PreviusMouseNode;
-        private PathManager _pathData;
-
+        private PathManager PathData;
+        private GridBase Grid;
 
 
         public void Init()
         {
-            _pathData = new PathManager(ActionPoints, AvailableMovementMaterial, MissingMovementMaterial);
-            Player.transform.position = GridBase.GetInstance.GetWorldCoordinatesFromNode(5, 6); 
+        }
+
+        private void Start()
+        {
+            Grid = GridBase.GetInstance;
+            Players.transform.position = Grid.GetWorldCoordinatesFromNode(5, 6);
+            PathData = PathManager.GetInstance;
         }
 
         private void Update()
         {
-            if (!GridBase.GetInstance.IsInitialized) return;
-            if (Player == null) return;
+            if (!Grid.IsInitialized) return;
+            if (Players == null) return;
 
-            DrawPath();
+            var path = PathData.GetAvailablePath();
+            if (path != null && path.Count > 0
+                && Input.GetMouseButton(0))
+            {
+                Players.Move(path);
+            }
+
+            if (!Players.IsMoving)
+                DrawPath();
+
+
         }
         private void DrawPath()
         {
@@ -38,10 +46,10 @@ namespace Assets.Scripts.Managers
             if (CurrentMouseNode != null && PreviusMouseNode != CurrentMouseNode)
             {
                 PreviusMouseNode = CurrentMouseNode;
-                var playerPositionNode = GridBase.GetInstance.GetNodeFromWorldPosition(Player.transform.position);
+                var playerPositionNode = Grid.GetNodeFromWorldPosition(Players.transform.position);
 
-                var pf = new PathFinding(GridBase.GetInstance.Grid, playerPositionNode, CurrentMouseNode);
-                _pathData.SetNewPath(pf.GetPath(), this.ActionPoints);
+                var pf = new PathFinding(Grid.Grid, playerPositionNode, CurrentMouseNode);
+                PathData.SetNewPath(pf.GetPath(), this.Players.ActionPoints);
             }
         }
 
@@ -50,14 +58,16 @@ namespace Assets.Scripts.Managers
             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
             if (hit.collider != null)
-                return  GridBase.GetInstance.GetNodeFromWorldPosition(hit.point);
+                return Grid.GetNodeFromWorldPosition(hit.point);
 
             return null;
         }
 
+
         public static GameManager GetInstance;
         private void Awake()
         {
+
             GetInstance = this;
         }
     }
