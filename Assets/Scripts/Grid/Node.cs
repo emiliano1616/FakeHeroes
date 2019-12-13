@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Managers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +10,15 @@ namespace Assets.Scripts.Grid
 {
     public class Node
     {
-        public Node(Func<Node, Vector2> getPositionFunc)
+        public Node(Func<Node, Vector2> getPositionFunc,
+            Action<Node,bool> setWalkableFunc)
         {
             this._getPositionFunc = getPositionFunc;
+            this._setWalkableFunc = setWalkableFunc;
         }
         private Func<Node, Vector2> _getPositionFunc;
+        private Action<Node, bool> _setWalkableFunc;
+
         //Node's position in the grid
         public int x { get; set; }
         public int y { get; set; }
@@ -25,7 +30,20 @@ namespace Assets.Scripts.Grid
         public float NodeCost { get; set; } = 1f;
 
         public Node ParentNode { get; set; }
-        public bool IsWalkable { get; set; } = true;
+        private bool _isWalkable;
+        public bool IsWalkable
+        {
+            get
+            {
+                return _isWalkable;
+            }
+            set
+            {
+                this._setWalkableFunc?.Invoke(this, value);
+
+                _isWalkable = value;
+            }
+        }
         public bool APAvailable { get; set; } = true;
         public Vector2 Position
         {
@@ -47,6 +65,8 @@ namespace Assets.Scripts.Grid
             }
         }
 
+        public GameObject WorldObject { get; set; }
+
         //public GameObject WorldObject { get; set; }
 
         //public NodeTypes Type { get; set; }
@@ -55,6 +75,19 @@ namespace Assets.Scripts.Grid
         //    Ground,
         //    Water
         //}
+
+        public SaveableNode ToSaveable
+        {
+            get
+            {
+                return new SaveableNode()
+                {
+                    IsWalkable = this.IsWalkable,
+                    X = this.x,
+                    Y = this.y
+                };
+            }
+        }
 
         public override string ToString()
         {

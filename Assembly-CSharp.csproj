@@ -67,9 +67,15 @@
     <Compile Include="Assets\Scripts\Grid\GridBase.cs" />
     <Compile Include="Assets\Scripts\Grid\GridLevel.cs" />
     <Compile Include="Assets\Scripts\Grid\Node.cs" />
+    <Compile Include="Assets\Scripts\Level\Obstacle.cs" />
+    <Compile Include="Assets\Scripts\Managers\CameraManager.cs" />
     <Compile Include="Assets\Scripts\Managers\GameManager.cs" />
+    <Compile Include="Assets\Scripts\Managers\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Managers\PathManager.cs" />
+    <Compile Include="Assets\Scripts\Managers\Serialization.cs" />
     <Compile Include="Assets\Scripts\Managers\UnitController.cs" />
+    <Compile Include="Assets\Utilities\LevelEditor\EditorEvents.cs" />
+    <Compile Include="Assets\Utilities\LevelEditor\LevelEditor.cs" />
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>E:/Unity/GridMap/FakeHeroes/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>

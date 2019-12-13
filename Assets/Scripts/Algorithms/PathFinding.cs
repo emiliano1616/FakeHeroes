@@ -61,7 +61,7 @@ namespace Assets.Scripts.Algorithms
                 return _path;
             _pathRequested = true;
 
-            if (!this.Destination.IsWalkable || !this.Source.IsWalkable)
+            if (!this.Destination.IsWalkable)// || !this.Source.IsWalkable)
             {
                 //Debug.Log("Source or the destination is blocked");
                 return null;

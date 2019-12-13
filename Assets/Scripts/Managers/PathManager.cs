@@ -18,7 +18,7 @@ namespace Assets.Scripts.Managers
         [SerializeField]
         private Material MissingMovementMaterial;
 
-        public float AvailableActionPoints { get; set; }
+        private float AvailableActionPoints { get; set; }
         private List<Node> Path { get; set; }
         private LineRenderer AvailableMovementLine { get; set; }
         private LineRenderer MissingMovementLine { get; set; }
@@ -88,9 +88,13 @@ namespace Assets.Scripts.Managers
 
         public void Move()
         {
-            Path.RemoveAt(0);
+
             var positions = Path.Where(t => t.APAvailable).Select(t => t.Position3).ToArray();
+            if (Path.Any())
+                Path.RemoveAt(0);
             AvailableMovementLine.SetPositions(positions);
+
+
         }
 
 

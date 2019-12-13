@@ -22,6 +22,9 @@ namespace Assets.Scripts.Grid
         public Material DebugMaterial;
         public Material ObstacleMaterial;
 
+        public string LevelName;
+        public bool MustSaveLevel;
+        public bool MustLoadLevel;
 
         #endregion
 
@@ -37,14 +40,10 @@ namespace Assets.Scripts.Grid
 
         private void Update()
         {
-            Camera.main.transform.Translate(
-                Input.GetAxisRaw("Horizontal") * 0.75f, Input.GetAxisRaw("Vertical") * .75f, 0);
-
-            float scroll = Input.GetAxis("Mouse ScrollWheel");
-            if (scroll != 0.0f)
+            if (MustSaveLevel)
             {
-                Camera.main.orthographicSize = Camera.main.orthographicSize + Camera.main.orthographicSize * scroll;
-
+                MustSaveLevel = false;
+                Serialization.SaveLevel(LevelName);
             }
 
         }
@@ -72,7 +71,7 @@ namespace Assets.Scripts.Grid
             {
                 for (int y = 0; y < SizeY; y++)
                 {
-                    var n = new Node(this.GetWorldCoordinatesFromNode);
+                    var n = new Node(this.GetWorldCoordinatesFromNode, this.SetWalkableNode);
                     n.x = x;
                     n.y = y;
                     n.IsWalkable = true;
@@ -84,7 +83,7 @@ namespace Assets.Scripts.Grid
                             ||
                             x == 12 && y != 2 && y != 18
                             ||
-                            x == 14 && y != 4 && y != 30 && y != 15 
+                            x == 14 && y != 4 && y != 30 && y != 15
 
 
                             )
@@ -101,9 +100,9 @@ namespace Assets.Scripts.Grid
                             go.GetComponentInChildren<MeshRenderer>().material = ObstacleMaterial;
                         }
 
-                        //go.GetComponentInChildren<MeshRenderer>.sorting
                         go.transform.parent = _level.NodeParent.transform;
                         go.SetActive(true);
+                        n.WorldObject = go;
 
                     }
 
@@ -112,7 +111,11 @@ namespace Assets.Scripts.Grid
                 }
             }
         }
-
+        private void SetWalkableNode(Node node, bool walkable)
+        {
+            if (node.WorldObject)
+                node.WorldObject.GetComponentInChildren<MeshRenderer>().material = walkable ? DebugMaterial : ObstacleMaterial;
+        }
         private void CreateCollision()
         {
             var go = new GameObject();
@@ -157,13 +160,43 @@ namespace Assets.Scripts.Grid
         {
             if (DebugNode)
                 _debugNodeObj = WorldNode();
+
+            SaveLevelFile savedLevel = null;
+            if (MustLoadLevel)
+            {
+                savedLevel = Serialization.LoadLevel(LevelName);
+                if (savedLevel != null)
+                {
+                    SizeX = savedLevel.SizeX;
+                    SizeY = savedLevel.SizeY;
+                    ScaleXY = savedLevel.ScaleXY;
+                }
+            }
+
             Check();
             CreateGrid();
 
-            GameManager.GetInstance.Init();
+            GameManager.GetInstance.Init(savedLevel?.SavedHeros);
+            if (!MustLoadLevel || savedLevel == null)
+                LevelManager.GetInstance.Init();
+            else
+                LoadLevel(savedLevel.SavedNodes);
             IsInitialized = true;
 
         }
+
+        private void LoadLevel(List<SaveableNode> savedNodes)
+        {
+            foreach(var n in savedNodes)
+            {
+                Grid[n.X, n.Y].IsWalkable = n.IsWalkable;
+            }
+        }
+
+        //private SaveLevelFile LoadLevel()
+        //{
+        //    return 
+        //}
 
         private GameObject WorldNode()
         {
